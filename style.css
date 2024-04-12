@@ -1,0 +1,50 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    background-color: black;
+  }
+  
+  input, button, .buttons {
+    margin: 5px;
+  }
+  
+  #canvas {
+    border: 1px solid white;
+    margin-top: 20px;
+    box-shadow: 2px 2px 6px white;
+  }
+  
+  button {
+    background-color: black;
+    color: white;
+    border: 2px solid white;
+    height: 40px;
+    width: 100px;
+    border-radius: 3px;
+    transition: opacity 0.3s, background-color 0.3s, color 0.3s;
+    font-family: monospace;
+    cursor: pointer;
+    box-shadow: 2px 2px 6px rgba(255, 255, 255, 1);
+  }
+  
+  .er { 
+    width: 300px; 
+  }
+  
+  button:hover {
+    background-color: white;
+    color: black;
+    font-weight: bold;
+  }
+  
+  button:active {
+    opacity: 0.7;
+  }
+  
+  .buttons { 
+    display: flex;
+    justify-content: center;
+    gap: 10px; 
+  }
