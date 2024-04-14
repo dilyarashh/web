@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../algorithms"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../clustering"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "a star"
+	}
+}
