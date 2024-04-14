@@ -93,7 +93,7 @@ function highlightPath() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPoints();
 
-    ctx.strokeStyle = 'deeppink';
+    ctx.strokeStyle = 'fuchsia';
     ctx.lineWidth = 2;
     ctx.beginPath();
 

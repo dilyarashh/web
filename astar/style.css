@@ -6,6 +6,34 @@ body {
   background-color: black;
 }
 
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Ensure the content takes full available width */
+}
+
+.back-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: black;
+  color: white;
+  border: 2px solid white;
+  border-radius: 20px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-button:hover {
+  background-color: white;
+  color: black;
+  font-weight: bold;
+}
+
 input, button, .buttons {
   margin: 5px;
 }

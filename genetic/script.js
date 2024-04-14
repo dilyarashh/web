@@ -196,7 +196,7 @@ async function antAlgorithm(){
 
     for (let generation = 0; generation < numberOfGenerations; ++generation){
         if (end === 0){
-            drawFinishPath(bestAnt[0], 'deeppink');
+            drawFinishPath(bestAnt[0], 'fuchsia');
             break;
         }
 

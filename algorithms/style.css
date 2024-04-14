@@ -70,8 +70,8 @@ body {
   color: white;
   border: 2px solid white;
   height: 40px;
-  width: 100px;
-  border-radius: 3px;
+  width: 120px;
+  border-radius: 20px;
   transition: opacity 0.3s, background-color 0.3s, color 0.3s;
   font-family: monospace;
   cursor: pointer;
