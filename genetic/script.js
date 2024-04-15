@@ -31,7 +31,7 @@ function fillingBoard(e){
     } 
 }
 
-function drawPath(from, to) { 
+function drawPath(there, back) { 
     const drawLine = (start, end, color, width) => {
         context.beginPath(); 
         context.moveTo(start[0], start[1]); 
@@ -49,26 +49,26 @@ function drawPath(from, to) {
 
     const extensionFactor = 10; 
 
-    from = extendPath(from);
-    to = extendPath(to);
+    there = extendPath(there);
+    back = extendPath(back);
 
-    for (let i = 0; i < from.length - 1; ++i) { 
-        let vector = [from[i + 1][0] - from[i][0], from[i + 1][1] - from[i][1]]; 
+    for (let i = 0; i < there.length - 1; ++i) { 
+        let vector = [there[i + 1][0] - there[i][0], there[i + 1][1] - there[i][1]]; 
         let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]); 
         drawLine(
-            [from[i][0] + vector[0] * extensionFactor / s, from[i][1] + vector[1] * extensionFactor / s], 
-            [from[i + 1][0] - vector[0] * extensionFactor / s, from[i + 1][1] - vector[1] * extensionFactor / s], 
+            [there[i][0] + vector[0] * extensionFactor / s, there[i][1] + vector[1] * extensionFactor / s], 
+            [there[i + 1][0] - vector[0] * extensionFactor / s, there[i + 1][1] - vector[1] * extensionFactor / s], 
             "black", 
             2
-        );
+       );
     } 
 
-    for (let q = 0; q < to.length - 1; ++q) { 
-        let vector = [to[q + 1][0] - to[q][0], to[q + 1][1] - to[q][1]]; 
+    for (let q = 0; q < back.length - 1; ++q) { 
+        let vector = [back[q + 1][0] - back[q][0], back[q + 1][1] - back[q][1]]; 
         let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]); 
         drawLine(
-            [to[q][0] + vector[0] * extensionFactor / s, to[q][1] + vector[1] * extensionFactor / s], 
-            [to[q + 1][0] - vector[0] * extensionFactor / s, to[q + 1][1] - vector[1] * extensionFactor / s], 
+            [back[q][0] + vector[0] * extensionFactor / s, back[q][1] + vector[1] * extensionFactor / s], 
+            [back[q + 1][0] - vector[0] * extensionFactor / s, back[q + 1][1] - vector[1] * extensionFactor / s], 
             "rgb(142,250,142)", 
             1
         );
@@ -102,10 +102,18 @@ function highlitePath(bestPath, color){
             1
         );
     } 
+
+    for (let i = 0; i < points.length; ++i){
+        context.beginPath();
+        context.arc(points[i][0], points[i][1], 5, 0, 2*Math.PI, false);
+        context.fillStyle = 'white';
+        context.fill();
+    }
+
 }
 
 let lengthOfChromosome; 
-let numberOfGenerations = 50000;
+let numberOfGenerations = 80000;
 let chanceOfMutation = 20;
 
 const randomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min);
@@ -135,10 +143,6 @@ function addToPopulation(population, chromosome) {
             population.push(chromosome.slice());
         }
     }
-}
-
-function wait(time){
-    return new Promise(resolve => setTimeout(resolve, time));
 }
 
 function distance(chromosome){
@@ -189,7 +193,7 @@ async function geneticAlgorithm(){
     } 
     lengthOfChromosome = firstGeneration.length; 
 
-    const startPopulation = (firstGeneration) => {  
+    const firstRunning = (firstGeneration) => {  
         let res = [];  
         let buffer = firstGeneration.slice();  
         buffer.push(distance(buffer));  
@@ -210,7 +214,7 @@ async function geneticAlgorithm(){
         return res;  
     } 
     
-    let population = startPopulation(firstGeneration); 
+    let population = firstRunning(firstGeneration); 
     population.sort((function (a, b) { return a[a.length - 1] - b[b.length - 1]})); 
 
     let bestChromosome = population[0].slice(); 
@@ -248,6 +252,6 @@ async function geneticAlgorithm(){
             end -= 100; 
         } 
 
-        await wait(0); 
+        await new Promise(resolve => setTimeout(resolve, 0)); 
     } 
 }
