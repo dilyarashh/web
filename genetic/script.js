@@ -2,120 +2,83 @@ const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
 
 let vertexes = [];
-let size = 750;
-let numberOfGenerations = 100000;
-let alpha = 1;
-let beta = 1;
-let pheromones;
-let distance;
-let desires = [];
-let Q = 200;
-let evaporation = 0.64;
 
-canvas.addEventListener('click', mouseClick);
-document.getElementById("clear").onclick = clearFunc;
-document.getElementById("start").onclick = antAlgorithm;
-
-context.moveTo(0, 0); 
-context.lineTo(size, 0);
-context.moveTo(size, 0);
-context.lineTo(size, size);
-context.moveTo(0, 0);
-context.lineTo(0, size);
-context.moveTo(0, size);
-context.lineTo(size, size);
-context.stroke();
-
-function clearFunc(){
+document.getElementById('clearBtn').addEventListener('click', function() {
     location.reload();
-}
+});
+document.getElementById("findPathBtn").onclick = geneticAlg;
+canvas.addEventListener('click', mouseClick);
 
-function mouseClick(e){
+function mouseClick(e) {
     let clientX = e.pageX - e.target.offsetLeft;
     let clientY = e.pageY - e.target.offsetTop;
+    
+    drawLines(clientX, clientY);
+    drawPoint(clientX, clientY);
+    addVertex(clientX, clientY);
+}
 
+function addVertex(clientX, clientY) {
+    vertexes.push([clientX, clientY]);
+}
+
+function drawPoint(clientX, clientY) {
     context.beginPath();
-    if (vertexes.length >= 1){
-        for(let vert of vertexes){
+    context.arc(clientX, clientY, 4, 0, 2 * Math.PI, false);
+    context.fillStyle = 'white'; 
+    context.fill();
+    
+    context.fillStyle = 'white';
+    context.font = 'bold 12px sans-serif';
+    context.fillText(vertexes.length + 1, clientX + 5, clientY + 5); 
+}
+
+function drawLines(clientX, clientY) {
+    context.beginPath();
+    if (vertexes.length >= 1) {
+        for(let vert of vertexes) {
             let vertX = vert[0];
             let vertY = vert[1];
-
-            let vector = [clientX - vertX , clientY - vertY];
+            
+            let vector = [clientX - vertX, clientY - vertY];
             let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
             context.moveTo(vertX + vector[0] * 10 / s, vertY + vector[1] * 10 / s);
-
+            
             context.lineTo(clientX, clientY);
-            context.strokeStyle = "rgba(243,243,243,0.34)";
+            context.strokeStyle = "rgba(243,243,243,0.25)";
             context.stroke();
         }
     }
-
-    context.beginPath();
-    context.arc(clientX, clientY, 2, 0, 2*Math.PI, false);
-    context.fillStyle = "white";
-    context.fill();
-
-    vertexes.push([clientX, clientY]);
-    redrawVertexes();
 }
 
-function redrawVertexes(){
-    for (let i = 0; i < vertexes.length; ++i){
-        context.beginPath();
-        context.arc(vertexes[i][0], vertexes[i][1], 4, 0, 2*Math.PI, false);
-        context.fillStyle = "white";
-        context.fill();
-    }
-}
+function drawTheLines(to) {
+    to.splice(to.length - 1, 0, to[0].slice());
 
-function drawTheLines(from, to){
-    let a = from.slice()
-    a.push(a[0].slice())
-
-    for (let i = 0; i < a.length - 1; ++i){
+    for (let q = 0; q < to.length - 1; ++q) {
         context.beginPath();
-        let vector = [a[i + 1][0] - a[i][0] , a[i + 1][1] - a[i][1]];
+        let vector = [to[q + 1][0] - to[q][0], to[q + 1][1] - to[q][1]];
         let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
 
-        context.moveTo(a[i][0] + vector[0] * 10 / s, a[i][1] + vector[1] * 10 / s);
-        context.lineTo(a[i + 1][0] - vector[0] * 10 / s, a[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = "rgb(255,255,255)";
-        context.lineWidth = 2;
-        context.stroke();
-
-        context.moveTo(a[i][0] + vector[0] * 10 / s, a[i][1] + vector[1] * 10 / s);
-        context.lineTo(a[i + 1][0] - vector[0] * 10 / s, a[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = "rgba(243,243,243,0.34)";
-        context.lineWidth = 1;
-        context.stroke()
-    }
-
-    let b = to.slice();
-    b.push(b[0].slice())
-
-    for (let i = 0; i < b.length - 1; ++i){
-        context.beginPath();
-        let vector = [b[i + 1][0] - b[i][0] , b[i + 1][1] - b[i][1]];
-        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
-        context.moveTo(b[i][0] + vector[0] * 10 / s, b[i][1] + vector[1] * 10 / s);
-        context.lineTo(b[i + 1][0] - vector[0] * 10 / s, b[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = "rgb(250,142,142)";
+        context.moveTo(to[q][0] + vector[0] * 10 / s, to[q][1] + vector[1] * 10 / s);
+        context.lineTo(to[q + 1][0] - vector[0] * 10 / s, to[q + 1][1] - vector[1] * 10 / s);
+        context.strokeStyle = 'white';
         context.lineWidth = 1;
         context.stroke();
     }
-
 }
 
 function drawFinishPath(bestPath, color){
-    bestPath.push(bestPath[0].slice());
-    for (let i = 0; i < bestPath.length - 1; ++i){
+    console.log(bestPath.slice())
+    bestPath.splice(bestPath.length - 1, 0, bestPath[0].slice())
+    console.log(bestPath.slice())
+    for (let i = 0; i < bestPath.length - 2; ++i){
         context.beginPath();
         let vector = [bestPath[i + 1][0] - bestPath[i][0] , bestPath[i + 1][1] - bestPath[i][1]];
         let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
 
         context.moveTo(bestPath[i][0] + vector[0] * 10 / s, bestPath[i][1] + vector[1] * 10 / s);
         context.lineTo(bestPath[i + 1][0] - vector[0] * 10 / s, bestPath[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = "rgb(255,255,255)";
+        context.strokeStyle = 'deeppink';
         context.lineWidth = 2;
         context.stroke();
 
@@ -127,163 +90,161 @@ function drawFinishPath(bestPath, color){
     }
 }
 
-function wait(time){
-    return new Promise(resolve => setTimeout(resolve, time));
-}
 
-function distanceBetweenTwoPoints(first, second){
-    return Math.sqrt(Math.pow(first[0] - second[0], 2) + Math.pow(first[1] - second[1], 2));
-}
+//сам алгоритм
 
-function allDistanceForPath(path_idx){
-    let dist = 0
-    for (let i = 0; i < path_idx.length - 1; ++i){
-        dist += distanceBetweenTwoPoints(vertexes[path_idx[i]].slice(), vertexes[path_idx[i + 1]].slice());
+let size = 750;
+let lengthOfChromosome;
+let numberOfGenerations = 100000;
+let chanceOfMutation = 30;
+
+function shuffle(array) {
+    let a = array.slice()
+    for (let i = 0; i < vertexes.length - 1; ++i) {
+        let r1 = randomNumber(1, vertexes.length - 1);
+        let r2 = randomNumber(1, vertexes.length - 1);
+        [a[r1], a[r2]] = [a[r2], a[r1]];
     }
-    dist += distanceBetweenTwoPoints(vertexes[path_idx[path_idx.length - 1]].slice(), vertexes[path_idx[0]].slice());
-    return dist;
+    return a.slice();
 }
 
-function addToPopulation(allWays, path) {
-    if (!allWays.length) {
-        allWays.push(path.slice());
+function startPopulation(firstGeneration){
+    let res = [];
+    let buffer = firstGeneration.slice();
+    buffer.push(distance(buffer));
+    res.push(buffer.slice());
+
+    for (let i = 0; i < vertexes.length * vertexes.length; ++i){
+        buffer = firstGeneration.slice();
+        buffer = shuffle(buffer)
+        buffer.push(distance(buffer));
+        res.push(buffer.slice())
+    }
+    return res;
+}
+
+function addToPopulation(population, chromosome) {
+    if (!population.length) {
+        population.push(chromosome.slice());
     }
     else {
         let added = false
-        for (let i = 0; i < allWays.length; ++i) {
-            if (path[path.length - 1] < allWays[i][allWays[i].length - 1]) {
-                allWays.splice(i, 0, path);
+        for (let i = 0; i < population.length; ++i) {
+            if (chromosome[chromosome.length - 1] < population[i][population[i].length - 1]) {
+                population.splice(i, 0, chromosome);
                 added = true;
                 break;
             }
         }
         if (!added) {
-            allWays.push(path.slice());
+            population.push(chromosome.slice());
         }
     }
 }
 
-async function antAlgorithm(){
-    let vertexesLength = vertexes.length;
-    let bestAnt = []; 
+function wait(time){
+    return new Promise(resolve => setTimeout(resolve, time));
+}
 
-    let b = vertexes.slice(0);
-
-    let qwe = [];
-    for (let i = 0; i < vertexes.length; ++i){
-        qwe.push(i);
+function distance(chromosome){
+    let ans = 0;
+    for (let i = 0; i < chromosome.length - 1; ++i){
+        ans += Math.sqrt(Math.pow(chromosome[i][0] - chromosome[i + 1][0], 2) + Math.pow(chromosome[i][1] - chromosome[i + 1][1], 2));
     }
+    ans += Math.sqrt(Math.pow(chromosome[chromosome.length - 1][0] - chromosome[0][0], 2) + Math.pow(chromosome[chromosome.length - 1][1] - chromosome[0][1], 2));
+    return ans;
+}
 
-    bestAnt.push(b, qwe, allDistanceForPath(qwe));
-
-    pheromones = [];
-    distance = [];
-
-    for (let i = 0; i < vertexesLength; ++i){
-        pheromones[i] = new Array(vertexesLength);
-        distance[i] = new Array(vertexesLength);
+function twoRandomNumbers(min, max){
+    let a = Math.floor(Math.random() * (max - min) + min);
+    let b = Math.floor(Math.random() * (max - min) + min);
+    while (a === b){
+        a = Math.floor(Math.random() * (max - min) + min);
     }
+    return [a, b];
+}
 
-    for (let i = 0; i < vertexes.length - 1; ++i){
-        for (let j = i + 1; j < vertexes.length; ++j){
-            distance[i][j] = Q / distanceBetweenTwoPoints(vertexes[i].slice(), vertexes[j].slice());
-            pheromones[i][j] = 0.2;
+function randomNumber(min, max){
+    return  Math.floor(Math.random() * (max - min) + min);
+}
+
+function cross(firstParent, secondParent){
+    let child = [];
+    let index1 = randomNumber(0, firstParent.length);
+    let index2 = randomNumber(index1 + 1, firstParent.length);
+    child = firstParent.slice(index1, index2 + 1);
+
+    for (let num of secondParent) {
+        if (!child.includes(num)) {
+            child.push(num);
         }
     }
 
+    if (Math.random() * 100 < chanceOfMutation){
+        let rand = twoRandomNumbers(1, lengthOfChromosome);
+        let i = rand[0], j = rand[1];
+        [child[i], child[j]] = [child[j], child[i]];
+    }
 
-    let end = vertexesLength * 2;
+    return child;
+}
 
-    for (let generation = 0; generation < numberOfGenerations; ++generation){
+function crossingParents(firstParent, secondParent){
+    let firstChild = cross(firstParent, secondParent);
+    let secondChild = cross(firstParent, secondParent);
+
+    firstChild.push(distance(firstChild.slice()))
+    secondChild.push(distance(secondChild.slice()))
+    return [firstChild, secondChild];
+}
+
+async function geneticAlg(){
+    let firstGeneration = [];
+    let end = 500;
+
+    for (let i = 0; i < vertexes.length; ++i){
+        firstGeneration.push(vertexes[i]);
+    }
+    lengthOfChromosome = firstGeneration.length;
+
+    let population = startPopulation(firstGeneration);
+    population.sort((function (a, b) { return a[a.length - 1] - b[b.length - 1]}));
+
+    let bestChromosome = population[0].slice();
+    drawFinishPath(bestChromosome, "rgb(250,142,142)")
+
+    for(let i = 0; i < numberOfGenerations; ++i){
         if (end === 0){
-            drawFinishPath(bestAnt[0], 'fuchsia');
+            drawFinishPath(bestChromosome, "rgb(142,250,142)")
             break;
         }
 
-        let ways = [];
-        let path = [];
-        let path_idx = [];
+        population = population.slice(0, vertexes.length * vertexes.length);
 
-        for (let ant = 0; ant < vertexes.length; ++ant){
-            path = [];
-            path_idx = [];
+        for (let j = 0; j < vertexes.length * vertexes.length; ++j){
+            let index1 = randomNumber(0, population.length);
+            let index2 = randomNumber(0, population.length);
+            let firstParent = population[index1].slice(0, population[index1].length - 1);
+            let secondParent = population[index2].slice(0, population[index2].length - 1);
 
-            let startVertex_idx = ant;
-            let startVertex = vertexes[startVertex_idx].slice();
-
-            path.push(startVertex);
-            path_idx.push(startVertex_idx);
-
-            while (path.length !== vertexes.length){
-                let sumOfDesires = 0;
-
-                let p = [];
-                for (let j = 0; j < vertexes.length; ++j) {
-                    if (path_idx.indexOf(j) !== -1){
-                        continue;
-                    }
-                    let min = Math.min(startVertex_idx, j);
-                    let max = Math.max(startVertex_idx, j);
-                    let desire = Math.pow(pheromones[min][max], alpha) * Math.pow(distance[min][max], beta);
-                    p.push([j,desire]);
-                    sumOfDesires += desire;
-                }
-
-                for (let i = 0; i < p.length; ++i){
-                    p[i][1] /= sumOfDesires;
-                }
-
-                for (let j = 1; j < p.length; ++j){
-                    p[j][1] += p[j - 1][1];
-                }
-
-                let rand = Math.random()
-                let choice
-                for (let i = 0; i < p.length; ++i){
-                    if (rand < p[i][1]){
-                        choice = p[i][0];
-                        break;
-                    }
-                }
-                startVertex_idx = choice;
-
-                startVertex = vertexes[startVertex_idx].slice();
-                path.push(startVertex.slice());
-                path_idx.push(startVertex_idx);
-            }
-            ways.push([path.slice(), path_idx.slice(), allDistanceForPath(path_idx)])
+            let child = crossingParents(firstParent, secondParent);
+            population.push(child[0].slice())
+            population.push(child[1].slice())
         }
 
-        ways.sort((function (a, b) { return a[2] - b[2]}));
+        population.sort((function (a, b) { return a[a.length - 1] - b[b.length - 1]}));
 
-        for (let i = 0; i < vertexesLength - 1; ++i){
-            for (let j = i + 1; j < vertexesLength; ++j){
-                pheromones[i][j] *= evaporation;
-            }
+        if (JSON.stringify(bestChromosome) !== JSON.stringify(population[0])){
+            drawTheLines(bestChromosome, population[0])
+            bestChromosome = population[0].slice();
+            end = 500;
         }
 
-        for (let i = 0; i < ways.length; ++i){
-            let idx_path = ways[i][1].slice();
-            let lenOfPath = ways[i][2]
-            for (let j = 0; j < vertexesLength - 1; ++j){
-                let min = Math.min(idx_path[j], idx_path[j + 1]);
-                let max = Math.max(idx_path[j], idx_path[j + 1]);
-                pheromones[min][max] += Q / lenOfPath;
-            }
+        if (i % 100 === 0){
+            console.log(i);
+            end -= 100;
         }
 
-        let newBestAnt = ways[0].slice();
-
-        if (newBestAnt[2] < bestAnt[2]){
-            drawTheLines(bestAnt[0], newBestAnt[0]);
-            bestAnt = newBestAnt.slice();
-            redrawVertexes();
-            end = vertexesLength * 2;
-        }
-
-        end -= 1;
-        console.log(generation)
-        await wait(100);
+        await wait(0);
     }
-
 }
