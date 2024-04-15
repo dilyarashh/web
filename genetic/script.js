@@ -73,48 +73,55 @@ function drawPath(there, back) {
             1
         );
     } 
+
+    for (let i = 0; i < points.length; ++i){ 
+        context.beginPath(); 
+        context.arc(points[i][0], points[i][1], 5, 0, 2*Math.PI, false); 
+        context.fillStyle = 'white'; 
+        context.fill(); 
+    } 
 }
 
-function highlitePath(bestPath, color){ 
-    const drawSegment = (start, end, color, width) => {
+function highlitePath(bestPath) {
+    const color = 'fuchsia'; 
+
+    const drawSegment = (start, end, width) => { 
+        context.beginPath();  
+        context.moveTo(start[0], start[1]);  
+        context.lineTo(end[0], end[1]);  
+        context.strokeStyle = color;  
+        context.lineWidth = width;  
+        context.stroke();  
+    }; 
+ 
+    console.log(bestPath.slice())  
+ 
+    bestPath.splice(bestPath.length - 1, 0, bestPath[0].slice());  
+ 
+    console.log(bestPath.slice())  
+ 
+    for (let i = 0; i < bestPath.length - 2; ++i){  
+        let vector = [bestPath[i + 1][0] - bestPath[i][0], bestPath[i + 1][1] - bestPath[i][1]];  
+        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);  
+ 
+        drawSegment( 
+            [bestPath[i][0] + vector[0] * 10 / s, bestPath[i][1] + vector[1] * 10 / s],  
+            [bestPath[i + 1][0] - vector[0] * 10 / s, bestPath[i + 1][1] - vector[1] * 10 / s],  
+            1 
+        ); 
+    }  
+ 
+    for (let i = 0; i < points.length; ++i){ 
         context.beginPath(); 
-        context.moveTo(start[0], start[1]); 
-        context.lineTo(end[0], end[1]); 
-        context.strokeStyle = color; 
-        context.lineWidth = width; 
-        context.stroke(); 
-    };
-
-    console.log(bestPath.slice()) 
-
-    bestPath.splice(bestPath.length - 1, 0, bestPath[0].slice()); 
-
-    console.log(bestPath.slice()) 
-
-    for (let i = 0; i < bestPath.length - 2; ++i){ 
-        let vector = [bestPath[i + 1][0] - bestPath[i][0], bestPath[i + 1][1] - bestPath[i][1]]; 
-        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]); 
-
-        drawSegment(
-            [bestPath[i][0] + vector[0] * 10 / s, bestPath[i][1] + vector[1] * 10 / s], 
-            [bestPath[i + 1][0] - vector[0] * 10 / s, bestPath[i + 1][1] - vector[1] * 10 / s], 
-            color, 
-            1
-        );
+        context.arc(points[i][0], points[i][1], 5, 0, 2*Math.PI, false); 
+        context.fillStyle = 'white'; 
+        context.fill(); 
     } 
-
-    for (let i = 0; i < points.length; ++i){
-        context.beginPath();
-        context.arc(points[i][0], points[i][1], 5, 0, 2*Math.PI, false);
-        context.fillStyle = 'white';
-        context.fill();
-    }
-
 }
 
 let lengthOfChromosome; 
-let numberOfGenerations = 80000;
-let chanceOfMutation = 20;
+let numberOfGenerations = 100000;
+let chanceOfMutation = 50;
 
 const randomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
@@ -218,11 +225,11 @@ async function geneticAlgorithm(){
     population.sort((function (a, b) { return a[a.length - 1] - b[b.length - 1]})); 
 
     let bestChromosome = population[0].slice(); 
-    highlitePath(bestChromosome, "rgb(250,142,142)") 
+    highlitePath(bestChromosome) 
 
     for(let i = 0; i < numberOfGenerations; ++i){ 
         if (end === 0){ 
-            highlitePath(bestChromosome, 'fuchsia') 
+            highlitePath(bestChromosome) 
             break; 
         } 
 
