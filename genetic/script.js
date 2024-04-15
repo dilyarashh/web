@@ -120,8 +120,8 @@ function highlitePath(bestPath) {
 }
 
 let lengthOfChromosome; 
-let numberOfGenerations = 100000;
-let chanceOfMutation = 50;
+let numberOfGenerations = 160000;
+let chanceOfMutation = 30;
 
 const randomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
