@@ -48,20 +48,22 @@ canvas.addEventListener('click', function(event) {
   var clickedRow = Math.floor(y / cellSize);
   var clickedCol = Math.floor(x / cellSize);
 
-  
-  if (window.maze[clickedRow][clickedCol] === false) { 
-    if (settingStart) {
-      start = clickedRow + "," + clickedCol;
-      settingStart = false;
-      drawMaze(window.maze, window.N);
-    } else if (settingEnd) {
-      end = clickedRow + "," + clickedCol;
-      settingEnd = false;
-      drawMaze(window.maze, window.N); 
-    }
-  } else if (isEditing) {
+  if (isEditing) {
+    // Инвертируем состояние ячейки: если это была стена, делаем проход; если проход, делаем стену.
     window.maze[clickedRow][clickedCol] = !window.maze[clickedRow][clickedCol];
-    drawMaze(window.maze, window.N); 
+    drawMaze(window.maze, window.N);
+  } else {
+    if (window.maze[clickedRow][clickedCol] === false) {
+      if (settingStart) {
+        start = clickedRow + "," + clickedCol;
+        settingStart = false;
+        drawMaze(window.maze, window.N);
+      } else if (settingEnd) {
+        end = clickedRow + "," + clickedCol;
+        settingEnd = false;
+        drawMaze(window.maze, window.N);
+      }
+    }
   }
 });
 
