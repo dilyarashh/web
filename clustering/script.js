@@ -2,6 +2,12 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 let points = [];
 
+document.getElementById("clear").onclick = clearFunc;
+
+function clearFunc(){
+    location.reload();
+}
+
 canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;

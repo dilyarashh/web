@@ -1,289 +1,264 @@
-const canvas = document.querySelector("canvas");
+const canvas = document.getElementById('canvas');
 const context = canvas.getContext("2d");
 
-let vertexes = [];
-let size = 750;
-let numberOfGenerations = 100000;
-let alpha = 1;
-let beta = 1;
-let pheromones;
-let distance;
-let desires = [];
-let Q = 200;
-let evaporation = 0.64;
-
-canvas.addEventListener('click', mouseClick);
+canvas.addEventListener('click', fillingBoard);
 document.getElementById("clear").onclick = clearFunc;
-document.getElementById("start").onclick = antAlgorithm;
-
-context.moveTo(0, 0); 
-context.lineTo(size, 0);
-context.moveTo(size, 0);
-context.lineTo(size, size);
-context.moveTo(0, 0);
-context.lineTo(0, size);
-context.moveTo(0, size);
-context.lineTo(size, size);
-context.stroke();
+document.getElementById("start").onclick = geneticAlgorithm;
 
 function clearFunc(){
     location.reload();
 }
 
-function mouseClick(e){
-    let clientX = e.pageX - e.target.offsetLeft;
-    let clientY = e.pageY - e.target.offsetTop;
+let points = []; 
 
-    context.beginPath();
-    if (vertexes.length >= 1){
-        for(let vert of vertexes){
-            let vertX = vert[0];
-            let vertY = vert[1];
+function fillingBoard(e){ 
+    const clientX = e.pageX - e.target.offsetLeft; 
+    const clientY = e.pageY - e.target.offsetTop; 
 
-            let vector = [clientX - vertX , clientY - vertY];
-            let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
-            context.moveTo(vertX + vector[0] * 10 / s, vertY + vector[1] * 10 / s);
+    context.beginPath(); 
+    context.arc(clientX, clientY, 5, 0, 2*Math.PI, false); 
+    context.fillStyle = "white"; 
+    context.fill(); 
 
-            context.lineTo(clientX, clientY);
-            context.strokeStyle = "rgba(243,243,243,0.34)";
-            context.stroke();
-        }
-    }
+    points.push([clientX, clientY]); 
 
-    context.beginPath();
-    context.arc(clientX, clientY, 2, 0, 2*Math.PI, false);
-    context.fillStyle = "white";
-    context.fill();
-
-    vertexes.push([clientX, clientY]);
-    redrawVertexes();
+    if (points.length > 1) { 
+        context.beginPath(); 
+        context.moveTo(points[points.length - 2][0], points[points.length - 2][1]); 
+        context.lineTo(clientX, clientY); 
+        context.strokeStyle = 'rgba(128, 128, 128, 0.1)'; 
+        context.stroke(); 
+    } 
 }
 
-function redrawVertexes(){
-    for (let i = 0; i < vertexes.length; ++i){
-        context.beginPath();
-        context.arc(vertexes[i][0], vertexes[i][1], 4, 0, 2*Math.PI, false);
-        context.fillStyle = "white";
-        context.fill();
-    }
+function drawPath(there, back) { 
+    const drawLine = (start, end, color, width) => {
+        context.beginPath(); 
+        context.moveTo(start[0], start[1]); 
+        context.lineTo(end[0], end[1]); 
+        context.strokeStyle = color; 
+        context.lineWidth = width; 
+        context.stroke(); 
+    };
+
+    const extendPath = (path) => {
+        const extendedPath = path.slice();
+        extendedPath.splice(extendedPath.length - 1, 0, extendedPath[0].slice());
+        return extendedPath;
+    };
+
+    const extensionFactor = 10; 
+
+    there = extendPath(there);
+    back = extendPath(back);
+
+    for (let i = 0; i < there.length - 1; ++i) { 
+        let vector = [there[i + 1][0] - there[i][0], there[i + 1][1] - there[i][1]]; 
+        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]); 
+        drawLine(
+            [there[i][0] + vector[0] * extensionFactor / s, there[i][1] + vector[1] * extensionFactor / s], 
+            [there[i + 1][0] - vector[0] * extensionFactor / s, there[i + 1][1] - vector[1] * extensionFactor / s], 
+            "black", 
+            2
+       );
+    } 
+
+    for (let q = 0; q < back.length - 1; ++q) { 
+        let vector = [back[q + 1][0] - back[q][0], back[q + 1][1] - back[q][1]]; 
+        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]); 
+        drawLine(
+            [back[q][0] + vector[0] * extensionFactor / s, back[q][1] + vector[1] * extensionFactor / s], 
+            [back[q + 1][0] - vector[0] * extensionFactor / s, back[q + 1][1] - vector[1] * extensionFactor / s], 
+            "rgb(142,250,142)", 
+            1
+        );
+    } 
+
+    for (let i = 0; i < points.length; ++i){ 
+        context.beginPath(); 
+        context.arc(points[i][0], points[i][1], 5, 0, 2*Math.PI, false); 
+        context.fillStyle = 'white'; 
+        context.fill(); 
+    } 
 }
 
-function drawTheLines(from, to){
-    let a = from.slice()
-    a.push(a[0].slice())
+function highlitePath(bestPath) {
+    const color = 'fuchsia'; 
 
-    for (let i = 0; i < a.length - 1; ++i){
-        context.beginPath();
-        let vector = [a[i + 1][0] - a[i][0] , a[i + 1][1] - a[i][1]];
-        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
-
-        context.moveTo(a[i][0] + vector[0] * 10 / s, a[i][1] + vector[1] * 10 / s);
-        context.lineTo(a[i + 1][0] - vector[0] * 10 / s, a[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = "rgb(255,255,255)";
-        context.lineWidth = 2;
-        context.stroke();
-
-        context.moveTo(a[i][0] + vector[0] * 10 / s, a[i][1] + vector[1] * 10 / s);
-        context.lineTo(a[i + 1][0] - vector[0] * 10 / s, a[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = "rgba(243,243,243,0.34)";
-        context.lineWidth = 1;
-        context.stroke()
-    }
-
-    let b = to.slice();
-    b.push(b[0].slice())
-
-    for (let i = 0; i < b.length - 1; ++i){
-        context.beginPath();
-        let vector = [b[i + 1][0] - b[i][0] , b[i + 1][1] - b[i][1]];
-        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
-        context.moveTo(b[i][0] + vector[0] * 10 / s, b[i][1] + vector[1] * 10 / s);
-        context.lineTo(b[i + 1][0] - vector[0] * 10 / s, b[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = "rgb(250,142,142)";
-        context.lineWidth = 1;
-        context.stroke();
-    }
-
+    const drawSegment = (start, end, width) => { 
+        context.beginPath();  
+        context.moveTo(start[0], start[1]);  
+        context.lineTo(end[0], end[1]);  
+        context.strokeStyle = color;  
+        context.lineWidth = width;  
+        context.stroke();  
+    }; 
+ 
+    console.log(bestPath.slice())  
+ 
+    bestPath.splice(bestPath.length - 1, 0, bestPath[0].slice());  
+ 
+    console.log(bestPath.slice())  
+ 
+    for (let i = 0; i < bestPath.length - 2; ++i){  
+        let vector = [bestPath[i + 1][0] - bestPath[i][0], bestPath[i + 1][1] - bestPath[i][1]];  
+        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);  
+ 
+        drawSegment( 
+            [bestPath[i][0] + vector[0] * 10 / s, bestPath[i][1] + vector[1] * 10 / s],  
+            [bestPath[i + 1][0] - vector[0] * 10 / s, bestPath[i + 1][1] - vector[1] * 10 / s],  
+            1 
+        ); 
+    }  
+ 
+    for (let i = 0; i < points.length; ++i){ 
+        context.beginPath(); 
+        context.arc(points[i][0], points[i][1], 5, 0, 2*Math.PI, false); 
+        context.fillStyle = 'white'; 
+        context.fill(); 
+    } 
 }
 
-function drawFinishPath(bestPath, color){
-    bestPath.push(bestPath[0].slice());
-    for (let i = 0; i < bestPath.length - 1; ++i){
-        context.beginPath();
-        let vector = [bestPath[i + 1][0] - bestPath[i][0] , bestPath[i + 1][1] - bestPath[i][1]];
-        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
+let lengthOfChromosome; 
+let numberOfGenerations = 160000;
+let chanceOfMutation = 30;
 
-        context.moveTo(bestPath[i][0] + vector[0] * 10 / s, bestPath[i][1] + vector[1] * 10 / s);
-        context.lineTo(bestPath[i + 1][0] - vector[0] * 10 / s, bestPath[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = "rgb(255,255,255)";
-        context.lineWidth = 2;
-        context.stroke();
+const randomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
-        context.moveTo(bestPath[i][0] + vector[0] * 10 / s, bestPath[i][1] + vector[1] * 10 / s);
-        context.lineTo(bestPath[i + 1][0] - vector[0] * 10 / s, bestPath[i + 1][1] - vector[1] * 10 / s);
-        context.strokeStyle = color;
-        context.lineWidth = 1;
-        context.stroke()
-    }
-}
+const twoRandomNumbers = (min, max) => {
+    let a, b;
+    do {
+        [a, b] = [randomNumber(min, max), randomNumber(min, max)];
+    } while (a === b);
+    return [a, b];
+};
 
-function wait(time){
-    return new Promise(resolve => setTimeout(resolve, time));
-}
-
-function distanceBetweenTwoPoints(first, second){
-    return Math.sqrt(Math.pow(first[0] - second[0], 2) + Math.pow(first[1] - second[1], 2));
-}
-
-function allDistanceForPath(path_idx){
-    let dist = 0
-    for (let i = 0; i < path_idx.length - 1; ++i){
-        dist += distanceBetweenTwoPoints(vertexes[path_idx[i]].slice(), vertexes[path_idx[i + 1]].slice());
-    }
-    dist += distanceBetweenTwoPoints(vertexes[path_idx[path_idx.length - 1]].slice(), vertexes[path_idx[0]].slice());
-    return dist;
-}
-
-function addToPopulation(allWays, path) {
-    if (!allWays.length) {
-        allWays.push(path.slice());
+function addToPopulation(population, chromosome) {
+    if (!population.length) {
+        population.push(chromosome.slice());
     }
     else {
         let added = false
-        for (let i = 0; i < allWays.length; ++i) {
-            if (path[path.length - 1] < allWays[i][allWays[i].length - 1]) {
-                allWays.splice(i, 0, path);
+        for (let i = 0; i < population.length; ++i) {
+            if (chromosome[chromosome.length - 1] < population[i][population[i].length - 1]) {
+                population.splice(i, 0, chromosome);
                 added = true;
                 break;
             }
         }
         if (!added) {
-            allWays.push(path.slice());
+            population.push(chromosome.slice());
         }
     }
 }
 
-async function antAlgorithm(){
-    let vertexesLength = vertexes.length;
-    let bestAnt = []; 
-
-    let b = vertexes.slice(0);
-
-    let qwe = [];
-    for (let i = 0; i < vertexes.length; ++i){
-        qwe.push(i);
+function distance(chromosome){
+    let ans = 0;
+    for (let i = 0; i < chromosome.length - 1; ++i){
+        ans += Math.sqrt(Math.pow(chromosome[i][0] - chromosome[i + 1][0], 2) + Math.pow(chromosome[i][1] - chromosome[i + 1][1], 2));
     }
+    ans += Math.sqrt(Math.pow(chromosome[chromosome.length - 1][0] - chromosome[0][0], 2) + Math.pow(chromosome[chromosome.length - 1][1] - chromosome[0][1], 2));
+    return ans;
+}
 
-    bestAnt.push(b, qwe, allDistanceForPath(qwe));
+function cross(firstParent, secondParent){
+    let child = [];
+    let index1 = randomNumber(0, firstParent.length);
+    let index2 = randomNumber(index1 + 1, firstParent.length);
+    child = firstParent.slice(index1, index2 + 1);
 
-    pheromones = [];
-    distance = [];
-
-    for (let i = 0; i < vertexesLength; ++i){
-        pheromones[i] = new Array(vertexesLength);
-        distance[i] = new Array(vertexesLength);
-    }
-
-    for (let i = 0; i < vertexes.length - 1; ++i){
-        for (let j = i + 1; j < vertexes.length; ++j){
-            distance[i][j] = Q / distanceBetweenTwoPoints(vertexes[i].slice(), vertexes[j].slice());
-            pheromones[i][j] = 0.2;
+    for (let num of secondParent) {
+        if (!child.includes(num)) {
+            child.push(num);
         }
     }
 
-
-    let end = vertexesLength * 2;
-
-    for (let generation = 0; generation < numberOfGenerations; ++generation){
-        if (end === 0){
-            drawFinishPath(bestAnt[0], 'fuchsia');
-            break;
-        }
-
-        let ways = [];
-        let path = [];
-        let path_idx = [];
-
-        for (let ant = 0; ant < vertexes.length; ++ant){
-            path = [];
-            path_idx = [];
-
-            let startVertex_idx = ant;
-            let startVertex = vertexes[startVertex_idx].slice();
-
-            path.push(startVertex);
-            path_idx.push(startVertex_idx);
-
-            while (path.length !== vertexes.length){
-                let sumOfDesires = 0;
-
-                let p = [];
-                for (let j = 0; j < vertexes.length; ++j) {
-                    if (path_idx.indexOf(j) !== -1){
-                        continue;
-                    }
-                    let min = Math.min(startVertex_idx, j);
-                    let max = Math.max(startVertex_idx, j);
-                    let desire = Math.pow(pheromones[min][max], alpha) * Math.pow(distance[min][max], beta);
-                    p.push([j,desire]);
-                    sumOfDesires += desire;
-                }
-
-                for (let i = 0; i < p.length; ++i){
-                    p[i][1] /= sumOfDesires;
-                }
-
-                for (let j = 1; j < p.length; ++j){
-                    p[j][1] += p[j - 1][1];
-                }
-
-                let rand = Math.random()
-                let choice
-                for (let i = 0; i < p.length; ++i){
-                    if (rand < p[i][1]){
-                        choice = p[i][0];
-                        break;
-                    }
-                }
-                startVertex_idx = choice;
-
-                startVertex = vertexes[startVertex_idx].slice();
-                path.push(startVertex.slice());
-                path_idx.push(startVertex_idx);
-            }
-            ways.push([path.slice(), path_idx.slice(), allDistanceForPath(path_idx)])
-        }
-
-        ways.sort((function (a, b) { return a[2] - b[2]}));
-
-        for (let i = 0; i < vertexesLength - 1; ++i){
-            for (let j = i + 1; j < vertexesLength; ++j){
-                pheromones[i][j] *= evaporation;
-            }
-        }
-
-        for (let i = 0; i < ways.length; ++i){
-            let idx_path = ways[i][1].slice();
-            let lenOfPath = ways[i][2]
-            for (let j = 0; j < vertexesLength - 1; ++j){
-                let min = Math.min(idx_path[j], idx_path[j + 1]);
-                let max = Math.max(idx_path[j], idx_path[j + 1]);
-                pheromones[min][max] += Q / lenOfPath;
-            }
-        }
-
-        let newBestAnt = ways[0].slice();
-
-        if (newBestAnt[2] < bestAnt[2]){
-            drawTheLines(bestAnt[0], newBestAnt[0]);
-            bestAnt = newBestAnt.slice();
-            redrawVertexes();
-            end = vertexesLength * 2;
-        }
-
-        end -= 1;
-        console.log(generation)
-        await wait(100);
+    if (Math.random() * 100 < chanceOfMutation){
+        let rand = twoRandomNumbers(1, lengthOfChromosome);
+        let i = rand[0], j = rand[1];
+        [child[i], child[j]] = [child[j], child[i]];
     }
 
+    return child;
+}
+
+function crossingParents(firstParent, secondParent){
+    let firstChild = cross(firstParent, secondParent);
+    let secondChild = cross(firstParent, secondParent);
+
+    firstChild.push(distance(firstChild.slice()))
+    secondChild.push(distance(secondChild.slice()))
+    return [firstChild, secondChild];
+}
+
+async function geneticAlgorithm(){ 
+    let firstGeneration = []; 
+    let end = 500; 
+
+    for (let i = 0; i < points.length; ++i){ 
+        firstGeneration.push(points[i]); 
+    } 
+    lengthOfChromosome = firstGeneration.length; 
+
+    const firstRunning = (firstGeneration) => {  
+        let res = [];  
+        let buffer = firstGeneration.slice();  
+        buffer.push(distance(buffer));  
+        res.push(buffer.slice());  
+
+        for (let i = 0; i < points.length * points.length; ++i){  
+            buffer = firstGeneration.slice();  
+
+            for (let j = 0; j < points.length - 1; ++j) {  
+                let r1 = randomNumber(0, points.length - 1);  
+                let r2 = randomNumber(0, points.length - 1);  
+                [buffer[r1], buffer[r2]] = [buffer[r2], buffer[r1]];  
+            }  
+
+            buffer.push(distance(buffer));  
+            res.push(buffer.slice());  
+        }  
+        return res;  
+    } 
+    
+    let population = firstRunning(firstGeneration); 
+    population.sort((function (a, b) { return a[a.length - 1] - b[b.length - 1]})); 
+
+    let bestChromosome = population[0].slice(); 
+    highlitePath(bestChromosome) 
+
+    for(let i = 0; i < numberOfGenerations; ++i){ 
+        if (end === 0){ 
+            highlitePath(bestChromosome) 
+            break; 
+        } 
+
+        population = population.slice(0, points.length * points.length); 
+
+        for (let j = 0; j < points.length * points.length; ++j){ 
+            let index1 = randomNumber(0, population.length); 
+            let index2 = randomNumber(0, population.length); 
+            let firstParent = population[index1].slice(0, population[index1].length - 1); 
+            let secondParent = population[index2].slice(0, population[index2].length - 1); 
+
+            let child = crossingParents(firstParent, secondParent); 
+            population.push(child[0].slice()) 
+            population.push(child[1].slice()) 
+        } 
+
+        population.sort((function (a, b) { return a[a.length - 1] - b[b.length - 1]})); 
+
+        if (JSON.stringify(bestChromosome) !== JSON.stringify(population[0])){ 
+            drawPath(bestChromosome, population[0]) 
+            bestChromosome = population[0].slice(); 
+            end = 500; 
+        } 
+
+        if (i % 100 === 0){ 
+            console.log(i); 
+            end -= 100; 
+        } 
+
+        await new Promise(resolve => setTimeout(resolve, 0)); 
+    } 
 }

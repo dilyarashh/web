@@ -11,7 +11,10 @@
     <h1>Clustering</h1>
     <label for="numClusters">NUMBER OF CLUSTERS:</label>
     <input id="numClusters" type="number" value="2" min="1" style="color: black;">
-    <button onclick="startClustering()">CLUSTER</button>
+    <div class="button-container">
+        <button onclick="startClustering()">CLUSTER</button>
+        <button id="clear">Clear</button>
+    </div>
     <canvas id="canvas" width="500" height="500"></canvas>
     <script src="script.js"></script>
 </body>

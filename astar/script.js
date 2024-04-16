@@ -66,7 +66,7 @@ canvas.addEventListener('click', function(event) {
 });
 
 document.querySelector('.reset').onclick = function() {
-    drawMaze(window.maze, window.N); 
+  location.reload();
 };
 
 function initAndCreateMaze() {
