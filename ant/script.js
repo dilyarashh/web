@@ -135,6 +135,11 @@ function addToPopulation(allWays, path) {
 }
 
 async function antAlgorithm(){
+    if (points.length < 3) {
+        alert("Please enter more than two points.");
+    } 
+
+    else{
     let vertexesLength = points.length;
     let bestAnt = []; 
 
@@ -255,5 +260,5 @@ async function antAlgorithm(){
         console.log(generation)
         await new Promise(resolve => setTimeout(resolve, 0));
     }
-
+    }
 }

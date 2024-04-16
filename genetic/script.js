@@ -59,7 +59,7 @@ function drawPath(there, back) {
             [there[i][0] + vector[0] * extensionFactor / s, there[i][1] + vector[1] * extensionFactor / s], 
             [there[i + 1][0] - vector[0] * extensionFactor / s, there[i + 1][1] - vector[1] * extensionFactor / s], 
             "black", 
-            2
+            4
        );
     } 
 
@@ -70,7 +70,7 @@ function drawPath(there, back) {
             [back[q][0] + vector[0] * extensionFactor / s, back[q][1] + vector[1] * extensionFactor / s], 
             [back[q + 1][0] - vector[0] * extensionFactor / s, back[q + 1][1] - vector[1] * extensionFactor / s], 
             "rgb(142,250,142)", 
-            1
+            2
         );
     } 
 
@@ -107,7 +107,7 @@ function highlitePath(bestPath) {
         drawSegment( 
             [bestPath[i][0] + vector[0] * 10 / s, bestPath[i][1] + vector[1] * 10 / s],  
             [bestPath[i + 1][0] - vector[0] * 10 / s, bestPath[i + 1][1] - vector[1] * 10 / s],  
-            1 
+            2 
         ); 
     }  
  
@@ -120,8 +120,8 @@ function highlitePath(bestPath) {
 }
 
 let lengthOfChromosome; 
-let numberOfGenerations = 160000;
-let chanceOfMutation = 30;
+let numberOfGenerations = 300000;
+let chanceOfMutation = 100;
 
 const randomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
@@ -191,7 +191,12 @@ function crossingParents(firstParent, secondParent){
     return [firstChild, secondChild];
 }
 
-async function geneticAlgorithm(){ 
+async function geneticAlgorithm(){
+    if (points.length < 3) {
+        alert("Please enter more than two points.");
+    } 
+
+    else {
     let firstGeneration = []; 
     let end = 500; 
 
@@ -261,4 +266,5 @@ async function geneticAlgorithm(){
 
         await new Promise(resolve => setTimeout(resolve, 0)); 
     } 
+    }
 }
