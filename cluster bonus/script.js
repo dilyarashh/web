@@ -1,5 +1,6 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+let clusteringCompleted = false;
 let points = []; // Массив для хранения точек и их радиусов
 
 canvas.addEventListener('click', function(event) {
@@ -14,11 +15,13 @@ canvas.addEventListener('click', function(event) {
 function drawCircle(x, y, radius) {
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'white';  // Задание белого цвета для границы кружка
     ctx.stroke();
     drawCircleLines(x, y, radius);
 }
 
 function drawCircleLines(x, y, radius) {
+    ctx.strokeStyle = 'white';  // Задание белого цвета для линий
     const startAngle = -Math.PI / 2; 
     for (let i = 0; i < 3; i++) {
         ctx.beginPath();
@@ -49,7 +52,9 @@ function startClustering() {
     clusterComponents();
     performDBSCAN(60, 3); // Эпсилон и минимальное количество точек для DBSCAN
     clearCanvas(); // Обновление канваса после всех кластеризаций
+    clusteringCompleted = true; // Установка флага завершения кластеризации
 }
+
 
 function performDBSCAN(eps, minPts) {
     const labels = new Array(points.length).fill(-1);
@@ -233,29 +238,26 @@ function getUniqueColors(k) {
 }
 
 canvas.addEventListener('mousemove', function(event) {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    
+    if (!clusteringCompleted) return; // Выход, если кластеризация не завершена
+
+    const mouseX = event.pageX;
+    const mouseY = event.pageY;
     let hovered = false;
 
     points.forEach(point => {
-        const distance = Math.sqrt((mouseX - point.x) ** 2 + (mouseY - point.y) ** 2);
+        const rect = canvas.getBoundingClientRect();
+        const pointX = point.x + rect.left;
+        const pointY = point.y + rect.top;
+        const distance = Math.sqrt((mouseX - pointX) ** 2 + (mouseY - pointY) ** 2);
         if (distance <= point.radius) {
-            const angle = Math.atan2(mouseY - point.y, mouseX - point.x);
-
-            // Перевод угла в положительный диапазон и корректировка начальной точки
+            const angle = Math.atan2(mouseY - pointY, mouseX - pointX);
             const adjustedAngle = (angle < -Math.PI / 2) ? angle + 2 * Math.PI : angle;
-            const kMeansAngleRange = [-Math.PI / 3, Math.PI / 3];
-            const componentsAngleRange = [Math.PI / 3, Math.PI];
-            const dbscanAngleRange = [Math.PI, Math.PI * 5 / 3];
-            
             let method;
-            if (adjustedAngle >= kMeansAngleRange[0] && adjustedAngle <= kMeansAngleRange[1]) {
+            if (adjustedAngle >= -Math.PI / 3 && adjustedAngle <= Math.PI / 3) {
                 method = "K-MEANS";
-            } else if (adjustedAngle >= componentsAngleRange[0] && adjustedAngle <= componentsAngleRange[1]) {
+            } else if (adjustedAngle >= Math.PI / 3 && adjustedAngle <= Math.PI) {
                 method = "COMPONENTS";
-            } else if (adjustedAngle >= dbscanAngleRange[0] && adjustedAngle <= dbscanAngleRange[1]) {
+            } else if (adjustedAngle >= Math.PI && adjustedAngle <= Math.PI * 5 / 3) {
                 method = "DBSCAN";
             }
 
@@ -271,21 +273,28 @@ canvas.addEventListener('mousemove', function(event) {
     }
 });
 
+
 function displayTooltip(x, y, text) {
     const tooltip = document.getElementById('tooltip') || document.createElement('div');
     tooltip.id = 'tooltip';
+    tooltip.textContent = text;
     tooltip.style.position = 'absolute';
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
     tooltip.style.background = 'white';
+    tooltip.style.color = 'black';
+    tooltip.style.fontFamily = 'monospace';
     tooltip.style.border = '1px solid black';
     tooltip.style.padding = '5px';
-    tooltip.style.pointerEvents = 'none'; // Чтобы события мыши не взаимодействовали с элементом
-    tooltip.textContent = text;
+    tooltip.style.pointerEvents = 'none';
+    tooltip.style.visibility = 'hidden'; // Сначала скрыть, чтобы вычислить размеры
 
     if (!document.getElementById('tooltip')) {
         document.body.appendChild(tooltip);
     }
+
+    // Обновить размеры после того, как текст добавлен
+    tooltip.style.visibility = 'visible';
+    tooltip.style.left = `${x - tooltip.offsetWidth / 2}px`; // Центрирование подсказки по горизонтали
+    tooltip.style.top = `${y - tooltip.offsetHeight - 5}px`; // Смещение вверх от курсора
 }
 
 function clearTooltip() {
@@ -294,3 +303,4 @@ function clearTooltip() {
         tooltip.parentNode.removeChild(tooltip);
     }
 }
+ 

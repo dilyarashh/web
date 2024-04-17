@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clusters</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="canvas" width="800" height="600" style="border:1px solid #000000;"></canvas>
-    <input type="number" id="numClusters" placeholder="Введите количество кластеров">
-    <button onclick="startClustering()">Запустить Кластеризацию</button>
-
+    <div class="content">
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <input type="number" id="numClusters" class="inputN" placeholder="Введите количество кластеров">
+        <button onclick="startClustering()">CLUSTER</button>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
