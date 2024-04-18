@@ -3,6 +3,10 @@ const ctx = canvas.getContext("2d");
 const buttonClear = document.getElementById('clear');
 const buttonPredict = document.getElementById('find');
 
+function clearFunc(){
+    location.reload();
+}
+
 const neurons = new Array(10).fill(null).map(() => Array.from({ length: 50 }, () => new Array(50)));
 fetch('data.txt')
   .then(response => {
