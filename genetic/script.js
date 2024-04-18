@@ -136,19 +136,22 @@ const twoRandomNumbers = (min, max) => {
 function addToPopulation(population, chromosome) {
     if (!population.length) {
         population.push(chromosome.slice());
+    } else {
+        insertIntoSortedPopulation(population, chromosome);
     }
-    else {
-        let added = false
-        for (let i = 0; i < population.length; ++i) {
-            if (chromosome[chromosome.length - 1] < population[i][population[i].length - 1]) {
-                population.splice(i, 0, chromosome);
-                added = true;
-                break;
-            }
+}
+
+function insertIntoSortedPopulation(population, chromosome) {
+    let added = false;
+    for (let i = 0; i < population.length; ++i) {
+        if (chromosome[chromosome.length - 1] < population[i][population[i].length - 1]) {
+            population.splice(i, 0, chromosome);
+            added = true;
+            break;
         }
-        if (!added) {
-            population.push(chromosome.slice());
-        }
+    }
+    if (!added) {
+        population.push(chromosome.slice());
     }
 }
 
@@ -161,25 +164,41 @@ function distance(chromosome){
     return ans;
 }
 
-function cross(firstParent, secondParent){
+function cross(firstParent, secondParent) {
     let child = [];
     let index1 = randomNumber(0, firstParent.length);
     let index2 = randomNumber(index1 + 1, firstParent.length);
-    child = firstParent.slice(index1, index2 + 1);
+    child = extractSegment(firstParent, index1, index2);
 
+    addNonDuplicates(child, secondParent);
+
+    if (shouldMutate(chanceOfMutation)) {
+        mutateChild(child);
+    }
+
+    return child;
+}
+
+function extractSegment(parent, startIndex, endIndex) {
+    return parent.slice(startIndex, endIndex + 1);
+}
+
+function addNonDuplicates(child, secondParent) {
     for (let num of secondParent) {
         if (!child.includes(num)) {
             child.push(num);
         }
     }
+}
 
-    if (Math.random() * 100 < chanceOfMutation){
-        let rand = twoRandomNumbers(1, lengthOfChromosome);
-        let i = rand[0], j = rand[1];
-        [child[i], child[j]] = [child[j], child[i]];
-    }
+function shouldMutate(chanceOfMutation) {
+    return Math.random() * 100 < chanceOfMutation;
+}
 
-    return child;
+function mutateChild(child) {
+    let rand = twoRandomNumbers(1, lengthOfChromosome);
+    let i = rand[0], j = rand[1];
+    [child[i], child[j]] = [child[j], child[i]];
 }
 
 function crossingParents(firstParent, secondParent){
@@ -191,80 +210,82 @@ function crossingParents(firstParent, secondParent){
     return [firstChild, secondChild];
 }
 
-async function geneticAlgorithm(){
+async function geneticAlgorithm() {
     if (points.length < 3) {
         alert("Please enter more than two points.");
-    } 
+    } else {
+        let firstGeneration = [];
+        let end = 500;
 
-    else {
-    let firstGeneration = []; 
-    let end = 500; 
+        for (let i = 0; i < points.length; ++i) {
+            firstGeneration.push(points[i]);
+        }
+        lengthOfChromosome = firstGeneration.length;
 
-    for (let i = 0; i < points.length; ++i){ 
-        firstGeneration.push(points[i]); 
-    } 
-    lengthOfChromosome = firstGeneration.length; 
+        let population = firstRunning(firstGeneration);
 
-    const firstRunning = (firstGeneration) => {  
-        let res = [];  
-        let buffer = firstGeneration.slice();  
-        buffer.push(distance(buffer));  
-        res.push(buffer.slice());  
+        let bestChromosome = population[0].slice();
+        highlitePath(bestChromosome);
 
-        for (let i = 0; i < points.length * points.length; ++i){  
-            buffer = firstGeneration.slice();  
+        for (let i = 0; i < numberOfGenerations; ++i) {
+            if (end === 0) {
+                highlitePath(bestChromosome);
+                break;
+            }
 
-            for (let j = 0; j < points.length - 1; ++j) {  
-                let r1 = randomNumber(0, points.length - 1);  
-                let r2 = randomNumber(0, points.length - 1);  
-                [buffer[r1], buffer[r2]] = [buffer[r2], buffer[r1]];  
-            }  
+            population = population.slice(0, points.length * points.length);
 
-            buffer.push(distance(buffer));  
-            res.push(buffer.slice());  
-        }  
-        return res;  
-    } 
-    
-    let population = firstRunning(firstGeneration); 
-    population.sort((function (a, b) { return a[a.length - 1] - b[b.length - 1]})); 
+            population = reproducePopulation(population);
 
-    let bestChromosome = population[0].slice(); 
-    highlitePath(bestChromosome) 
+            if (JSON.stringify(bestChromosome) !== JSON.stringify(population[0])) {
+                drawPath(bestChromosome, population[0]);
+                bestChromosome = population[0].slice();
+                end = 500;
+            }
 
-    for(let i = 0; i < numberOfGenerations; ++i){ 
-        if (end === 0){ 
-            highlitePath(bestChromosome) 
-            break; 
-        } 
+            if (i % 100 === 0) {
+                console.log(i);
+                end -= 100;
+            }
 
-        population = population.slice(0, points.length * points.length); 
-
-        for (let j = 0; j < points.length * points.length; ++j){ 
-            let index1 = randomNumber(0, population.length); 
-            let index2 = randomNumber(0, population.length); 
-            let firstParent = population[index1].slice(0, population[index1].length - 1); 
-            let secondParent = population[index2].slice(0, population[index2].length - 1); 
-
-            let child = crossingParents(firstParent, secondParent); 
-            population.push(child[0].slice()) 
-            population.push(child[1].slice()) 
-        } 
-
-        population.sort((function (a, b) { return a[a.length - 1] - b[b.length - 1]})); 
-
-        if (JSON.stringify(bestChromosome) !== JSON.stringify(population[0])){ 
-            drawPath(bestChromosome, population[0]) 
-            bestChromosome = population[0].slice(); 
-            end = 500; 
-        } 
-
-        if (i % 100 === 0){ 
-            console.log(i); 
-            end -= 100; 
-        } 
-
-        await new Promise(resolve => setTimeout(resolve, 0)); 
-    } 
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
     }
+}
+
+function firstRunning(firstGeneration) {
+    let res = [];
+    let buffer = firstGeneration.slice();
+    buffer.push(distance(buffer));
+    res.push(buffer.slice());
+
+    for (let i = 0; i < points.length * points.length; ++i) {
+        buffer = firstGeneration.slice();
+
+        for (let j = 0; j < points.length - 1; ++j) {
+            let r1 = randomNumber(0, points.length - 1);
+            let r2 = randomNumber(0, points.length - 1);
+            [buffer[r1], buffer[r2]] = [buffer[r2], buffer[r1]];
+        }
+
+        buffer.push(distance(buffer));
+        res.push(buffer.slice());
+    }
+    return res;
+}
+
+function reproducePopulation(population) {
+    for (let j = 0; j < points.length * points.length; ++j) {
+        let index1 = randomNumber(0, population.length);
+        let index2 = randomNumber(0, population.length);
+        let firstParent = population[index1].slice(0, population[index1].length - 1);
+        let secondParent = population[index2].slice(0, population[index2].length - 1);
+
+        let child = crossingParents(firstParent, secondParent);
+        population.push(child[0].slice());
+        population.push(child[1].slice());
+    }
+
+    population.sort((a, b) => a[a.length - 1] - b[b.length - 1]);
+    return population;
 }
