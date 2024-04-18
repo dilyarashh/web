@@ -5,26 +5,50 @@ body {
   margin-top: 20px;
   background-color: black;
   color: white;
+  font-family: monospace;
 }
 
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  width: 100%; /* Ensure the content takes full available width */
+}
+
+.back-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: black;
+  color: white;
+  border: 2px solid white;
+  border-radius: 20px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-button:hover {
+  background-color: white;
+  color: black;
+  font-weight: bold;
+}
+
+h1 {
+  font-family: monospace;
+  color: white;
+}
+
+input, button, .buttons {
+  margin: 5px;
 }
 
 #canvas {
   border: 1px solid white;
   margin-top: 20px;
   box-shadow: 2px 2px 6px white;
-}
-
-.inputN {
-  width: 295px; 
-  height: 25px; 
-  font-size: 14px;
-  margin: 5px;
 }
 
 button {
@@ -38,7 +62,6 @@ button {
   font-family: monospace;
   cursor: pointer;
   box-shadow: 2px 2px 6px rgba(255, 255, 255, 1);
-  margin: 5px;
 }
 
 button:hover {
@@ -50,3 +73,17 @@ button:hover {
 button:active {
   opacity: 0.7;
 }
+
+.buttons { 
+  display: flex;
+  justify-content: center;
+  gap: 10px; 
+}
+
+.inputN {
+  width: 295px; 
+  height: 25px; 
+  font-size: 14px;
+  margin: 5px;
+}
+

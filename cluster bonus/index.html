@@ -7,11 +7,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="content">
-        <canvas id="canvas" width="500" height="500"></canvas>
-        <input type="number" id="numClusters" class="inputN" placeholder="Введите количество кластеров">
+    <button class="back-button" onclick="location.href='../algorithms/index.html' ">Back</button>
+    <h1>Clustering</h1>
+    <input type="number" id="numClusters" class="inputN" placeholder="Введите количество кластеров">
+    <div class="button-container">
         <button onclick="startClustering()">CLUSTER</button>
+        <button id="clear">CLEAR</button>
     </div>
+    <canvas id="canvas" width="500" height="500"></canvas>
     <script src="script.js"></script>
-</body>
 </html>
+

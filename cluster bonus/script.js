@@ -1,7 +1,12 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+document.getElementById("clear").onclick = clearFunc;
 let clusteringCompleted = false;
 let points = []; // Массив для хранения точек и их радиусов
+
+function clearFunc(){
+    location.reload();
+}
 
 canvas.addEventListener('click', function(event) {
     const rect = canvas.getBoundingClientRect();
