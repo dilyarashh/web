@@ -12,7 +12,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%; /* Ensure the content takes full available width */
+    width: 100%; 
   }
   
   .back-button {
@@ -35,7 +35,7 @@ body {
     color: black;
     font-weight: bold;
   }
-  
+
   h1 {
     font-family: monospace;
     color: white;
@@ -46,9 +46,16 @@ body {
   }
   
   #canvas {
-    border: 1px solid white;
+    background-color: #000000;
+    grid-area: canvas;
+    border: 0.2px solid white;
+    margin: auto;
+    display: flex;
+    position: absolute;
+    left: 48.5%;
+    top: 51.5%;
+    transform: scale(7);
     margin-top: 20px;
-    box-shadow: 2px 2px 6px white;
   }
   
   button {
@@ -79,3 +86,80 @@ body {
     justify-content: center;
     gap: 10px; 
   }
+
+  .prediction {
+    position: fixed; 
+    top: 25%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); /* Центрирование элемента по горизонтали и вертикали */
+    background-color: rgba(255, 0, 255, 0.5); /* Розовый цвет с непрозрачностью */
+    color: white; /* Белый цвет текста */
+    padding: 20px; /* Внутренний отступ */
+    font-size: 24px; /* Размер шрифта */
+    border-radius: 10px; /* Закругленные углы */
+}
+    
+    #change-size{
+    font-size: 20px;
+    width: 300px;
+    background-color: white;
+    border-radius: 10px;
+    flex-grow: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #004f83;
+    margin-bottom: 20px;
+    }
+    
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%; /* Ensure the content takes full available width */
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: black;
+      color: white;
+      border: 2px solid white;
+      border-radius: 20px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .back-button:hover {
+      background-color: white;
+      color: black;
+      font-weight: bold;
+    }
+    
+
+    input, button, .buttons {
+      margin: 5px;
+    }
+    
+    button:hover {
+      background-color: white;
+      color: black;
+      font-weight: bold;
+    }
+    
+    button:active {
+      opacity: 0.7;
+    }
+    
+    .buttons { 
+      display: flex;
+      justify-content: center;
+      gap: 10px; 
+    }
+    
+    
+    
