@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d");
 const buttonClear = document.getElementById('clear');
 const buttonPredict = document.getElementById('find');
 
+document.getElementById("clear").onclick = clearFunc;
 function clearFunc(){
     location.reload();
 }
