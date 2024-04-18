@@ -67,9 +67,10 @@ canvas.addEventListener('click', function(event) {
   }
 });
 
-document.querySelector('.reset').onclick = function() {
-  location.reload();
-};
+
+document.getElementById('sizeSlider').oninput = function() {
+  document.getElementById('sliderValue').textContent = this.value;
+}
 
 function initAndCreateMaze() {
 
@@ -78,12 +79,12 @@ function initAndCreateMaze() {
     return; // Прерываем выполнение функции
   }
 
-  var size = parseInt(document.querySelector('.inputN').value);
+  var size = parseInt(document.getElementById('sizeSlider').value);
 
-  if (isNaN(size) || size <= 0 || size % 2 === 0) {
-      alert("Enter a natural odd number.");
-      return;
-  }
+  if (isNaN(size)) {
+    alert("Please choose a valid number.");
+    return;
+}
   cellSize = width / size;
   var maze = [];
   for (let i = 0; i < size; i++) {

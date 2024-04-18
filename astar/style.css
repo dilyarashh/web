@@ -38,10 +38,28 @@ input, button, .buttons {
   margin: 5px;
 }
 
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slider-label {
+  color: white;
+  font-family: monospace;
+  font-size: 16px;
+  margin-bottom: 5px; /* Расстояние до бегунка */
+}
+
 .inputN {
-  width: 295px; 
-  height: 25px; 
-  font-size: 14px; 
+  width: 300px; /* Уточните ширину по вашему вкусу */
+}
+
+#sliderValue {
+  color: white;
+  font-family: monospace;
+  font-size: 16px;
+  margin-left: 10px;
 }
 
 #canvas {
@@ -82,3 +100,7 @@ button:active {
   justify-content: center;
   gap: 10px; 
 }
+
+
+
+
