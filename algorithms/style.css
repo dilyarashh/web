@@ -49,6 +49,12 @@ body {
   width: 350px; 
   height: 350px; 
   margin-bottom: 20px;
+  transition: transform 0.3s ease; 
+}
+
+.image-container:hover {
+  transform: scale(1.1); /* увеличиваем размер на 10% */
+  z-index: 10; 
 }
 
 .image {
@@ -63,9 +69,9 @@ body {
 
 .image-btn {
   position: absolute;
-  top: 97%; 
+  bottom: 30px; /* Это значение позволит кнопке подняться вверх */
   left: 50%; 
-  transform: translate(-50%, -50%); 
+  transform: translateX(-50%); /* Это оставляет кнопку центрированной по горизонтали */
   background-color: black;
   color: white;
   border: 2px solid white;
