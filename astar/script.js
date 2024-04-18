@@ -264,3 +264,24 @@ function drawCell([row, col], color) {
   context.fillStyle = color;
   context.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
 }
+
+document.querySelector('.reset').onclick = function() {
+  // Очищаем холст
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  start = null;
+  end = null;
+
+  // Сбрасываем ползунок на начальное значение
+  var slider = document.getElementById('sizeSlider');
+  slider.value = 5; // начальное значение, которое вы установили в HTML
+  document.getElementById('sliderValue').textContent = '5';
+
+  window.maze = Array(window.N).fill().map(() => Array(window.N).fill(true));
+
+  settingStart = false;
+  settingEnd = false;
+  isEditing = false;
+
+  drawMaze(window.maze, window.N);
+};
