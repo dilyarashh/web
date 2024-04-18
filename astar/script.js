@@ -72,10 +72,16 @@ document.querySelector('.reset').onclick = function() {
 };
 
 function initAndCreateMaze() {
+
+  if (start !== null && end !== null) {
+    alert("The starting and ending points are already set. Reset them first.");
+    return; // Прерываем выполнение функции
+  }
+
   var size = parseInt(document.querySelector('.inputN').value);
 
   if (isNaN(size) || size <= 0 || size % 2 === 0) {
-      alert("Введите положительное нечетное число.");
+      alert("Enter a natural odd number.");
       return;
   }
   cellSize = width / size;
@@ -249,7 +255,7 @@ async function aStar(maze, startId, endId) {
       drawCell(current, 'gray'); 
       await sleep(0.5);
   }
-
+  alert("NO WAY!");
   return [];
 }
 
