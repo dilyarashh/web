@@ -1,6 +1,5 @@
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext("2d");
-
 canvas.addEventListener('click', fillingBoard);
 document.getElementById("clear").onclick = clearFunc;
 document.getElementById("start").onclick = geneticAlgorithm;
@@ -11,75 +10,96 @@ function clearFunc(){
 
 let points = []; 
 
-function fillingBoard(e){ 
-    const clientX = e.pageX - e.target.offsetLeft; 
-    const clientY = e.pageY - e.target.offsetTop; 
+function fillingBoard(e) {
+    const clientX = e.pageX - e.target.offsetLeft;
+    const clientY = e.pageY - e.target.offsetTop;
 
-    context.beginPath(); 
-    context.arc(clientX, clientY, 5, 0, 2*Math.PI, false); 
-    context.fillStyle = "white"; 
-    context.fill(); 
+    drawPoint(clientX, clientY);
+    savePoint(clientX, clientY);
 
-    points.push([clientX, clientY]); 
-
-    if (points.length > 1) { 
-        context.beginPath(); 
-        context.moveTo(points[points.length - 2][0], points[points.length - 2][1]); 
-        context.lineTo(clientX, clientY); 
-        context.strokeStyle = 'rgba(128, 128, 128, 0.1)'; 
-        context.stroke(); 
-    } 
+    if (points.length > 1) {
+        drawLine(points[points.length - 2][0], points[points.length - 2][1], clientX, clientY);
+    }
 }
 
-function drawPath(there, back) { 
-    const drawLine = (start, end, color, width) => {
-        context.beginPath(); 
-        context.moveTo(start[0], start[1]); 
-        context.lineTo(end[0], end[1]); 
-        context.strokeStyle = color; 
-        context.lineWidth = width; 
-        context.stroke(); 
+function drawPoint(x, y) {
+    context.beginPath();
+    context.arc(x, y, 5, 0, 2 * Math.PI, false);
+    context.fillStyle = "white";
+    context.fill();
+}
+
+function savePoint(x, y) {
+    points.push([x, y]);
+}
+
+function drawLine(x1, y1, x2, y2) {
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.strokeStyle = 'rgba(128, 128, 128, 0.1)';
+    context.stroke();
+}
+
+function drawPath(there, back) {
+    const drawLine = (start, end, color, width) => { 
+        context.beginPath();  
+        context.moveTo(start[0], start[1]);  
+        context.lineTo(end[0], end[1]);  
+        context.strokeStyle = color;  
+        context.lineWidth = width;  
+        context.stroke();  
+    }; 
+
+    const extendPath = (path) => { 
+        const extendedPath = path.slice(); 
+        extendedPath.splice(extendedPath.length - 1, 0, extendedPath[0].slice()); 
+        return extendedPath; 
     };
 
-    const extendPath = (path) => {
-        const extendedPath = path.slice();
-        extendedPath.splice(extendedPath.length - 1, 0, extendedPath[0].slice());
-        return extendedPath;
+    const extendBothPaths = () => {
+        there = extendPath(there);
+        back = extendPath(back);
     };
 
-    const extensionFactor = 10; 
+    const drawExtendedLines = (path, color, width) => {
+        for (let i = 0; i < path.length - 1; ++i) {  
+            drawExtendedLine(path[i], path[i + 1], color, width);
+        }
+    };
 
-    there = extendPath(there);
-    back = extendPath(back);
+    const drawExtendedLine = (start, end, color, width) => {
+        let vector = [end[0] - start[0], end[1] - start[1]];  
+        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);  
+        drawLine( 
+            [start[0] + vector[0] * extensionFactor / s, start[1] + vector[1] * extensionFactor / s],  
+            [end[0] - vector[0] * extensionFactor / s, end[1] - vector[1] * extensionFactor / s],  
+            color,  
+            width
+        ); 
+    };
 
-    for (let i = 0; i < there.length - 1; ++i) { 
-        let vector = [there[i + 1][0] - there[i][0], there[i + 1][1] - there[i][1]]; 
-        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]); 
-        drawLine(
-            [there[i][0] + vector[0] * extensionFactor / s, there[i][1] + vector[1] * extensionFactor / s], 
-            [there[i + 1][0] - vector[0] * extensionFactor / s, there[i + 1][1] - vector[1] * extensionFactor / s], 
-            "black", 
-            4
-       );
-    } 
+    const drawPoints = () => {
+        for (let i = 0; i < points.length; ++i){  
+            drawPoint(points[i]);
+        }
+    };
 
-    for (let q = 0; q < back.length - 1; ++q) { 
-        let vector = [back[q + 1][0] - back[q][0], back[q + 1][1] - back[q][1]]; 
-        let s = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]); 
-        drawLine(
-            [back[q][0] + vector[0] * extensionFactor / s, back[q][1] + vector[1] * extensionFactor / s], 
-            [back[q + 1][0] - vector[0] * extensionFactor / s, back[q + 1][1] - vector[1] * extensionFactor / s], 
-            "rgb(142,250,142)", 
-            2
-        );
-    } 
+    const drawPoint = (point) => {
+        context.beginPath();  
+        context.arc(point[0], point[1], 5, 0, 2*Math.PI, false);  
+        context.fillStyle = 'white';  
+        context.fill();  
+    };
 
-    for (let i = 0; i < points.length; ++i){ 
-        context.beginPath(); 
-        context.arc(points[i][0], points[i][1], 5, 0, 2*Math.PI, false); 
-        context.fillStyle = 'white'; 
-        context.fill(); 
-    } 
+    const extensionFactor = 10;  
+
+    extendBothPaths();
+
+    drawExtendedLines(there, "black", 4);
+    drawExtendedLines(back, "rgb(142,250,142)", 2);
+    
+    drawPoints();
 }
 
 function highlitePath(bestPath) {
@@ -210,6 +230,43 @@ function crossingParents(firstParent, secondParent){
     return [firstChild, secondChild];
 }
 
+function firstRunning(firstGeneration) {
+    let res = [];
+    let buffer = firstGeneration.slice();
+    buffer.push(distance(buffer));
+    res.push(buffer.slice());
+
+    for (let i = 0; i < points.length * points.length; ++i) {
+        buffer = firstGeneration.slice();
+
+        for (let j = 0; j < points.length - 1; ++j) {
+            let r1 = randomNumber(0, points.length - 1);
+            let r2 = randomNumber(0, points.length - 1);
+            [buffer[r1], buffer[r2]] = [buffer[r2], buffer[r1]];
+        }
+
+        buffer.push(distance(buffer));
+        res.push(buffer.slice());
+    }
+    return res;
+}
+
+function reproducePopulation(population) {
+    for (let j = 0; j < points.length * points.length; ++j) {
+        let index1 = randomNumber(0, population.length);
+        let index2 = randomNumber(0, population.length);
+        let firstParent = population[index1].slice(0, population[index1].length - 1);
+        let secondParent = population[index2].slice(0, population[index2].length - 1);
+
+        let child = crossingParents(firstParent, secondParent);
+        population.push(child[0].slice());
+        population.push(child[1].slice());
+    }
+
+    population.sort((a, b) => a[a.length - 1] - b[b.length - 1]);
+    return population;
+}
+
 async function geneticAlgorithm() {
     if (points.length < 3) {
         alert("Please enter more than two points.");
@@ -253,39 +310,3 @@ async function geneticAlgorithm() {
     }
 }
 
-function firstRunning(firstGeneration) {
-    let res = [];
-    let buffer = firstGeneration.slice();
-    buffer.push(distance(buffer));
-    res.push(buffer.slice());
-
-    for (let i = 0; i < points.length * points.length; ++i) {
-        buffer = firstGeneration.slice();
-
-        for (let j = 0; j < points.length - 1; ++j) {
-            let r1 = randomNumber(0, points.length - 1);
-            let r2 = randomNumber(0, points.length - 1);
-            [buffer[r1], buffer[r2]] = [buffer[r2], buffer[r1]];
-        }
-
-        buffer.push(distance(buffer));
-        res.push(buffer.slice());
-    }
-    return res;
-}
-
-function reproducePopulation(population) {
-    for (let j = 0; j < points.length * points.length; ++j) {
-        let index1 = randomNumber(0, population.length);
-        let index2 = randomNumber(0, population.length);
-        let firstParent = population[index1].slice(0, population[index1].length - 1);
-        let secondParent = population[index2].slice(0, population[index2].length - 1);
-
-        let child = crossingParents(firstParent, secondParent);
-        population.push(child[0].slice());
-        population.push(child[1].slice());
-    }
-
-    population.sort((a, b) => a[a.length - 1] - b[b.length - 1]);
-    return population;
-}
