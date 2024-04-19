@@ -13,6 +13,12 @@
     <span class="slider-label">NUMBER OF CLUSTERS FOR K-MEANS: <span id="clusterValue">2</span></span>
     <input type="range" id="numClusters" class="inputN" min="2" max="12" value="2" step="1">
     
+    <label for="epsilonRange">EPSILON FOR DBSCAN: <span id="epsilonValue">60</span> PX</label>
+    <input type="range" id="epsilonRange" class="inputN" min="60" max="240" value="60" step="30">
+
+    <label for="minPtsRange">MIN NUM OF POINTS FOR DBSCAN: <span id="minPtsValue">2</span></label>
+    <input type="range" id="minPtsRange" class="inputN" min="2" max="10" value="2" step="1">
+
     <div class="button-container">
         <button onclick="startClustering()">CLUSTER</button>
         <button id="clear">CLEAR</button>

@@ -12,7 +12,7 @@ canvas.addEventListener('click', function(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const radius = 30; // Радиус кружков
+    const radius = 25; // Радиус кружков
     points.push({ x, y, radius });
     drawCircle(x, y, radius);
 });
@@ -51,17 +51,29 @@ document.getElementById('numClusters').oninput = function() {
     document.getElementById('clusterValue').textContent = this.value;
 }
 
+document.getElementById('epsilonRange').oninput = function() {
+    document.getElementById('epsilonValue').textContent = this.value;
+}
+
+document.getElementById('minPtsRange').oninput = function() {
+    document.getElementById('minPtsValue').textContent = this.value;
+}
+
+
 function startClustering() {
     const k = parseInt(document.getElementById('numClusters').value); // Получаем значение из бегунка
     if (!k || isNaN(k) || k <= 0) {
         alert('Пожалуйста, введите действительное количество кластеров.');
         return;
     }
+    const eps = parseInt(document.getElementById('epsilonRange').value);
+    const minPts = parseInt(document.getElementById('minPtsRange').value);
+
     performClustering(k);
     clusterComponents();
-    performDBSCAN(60, 3); // Эпсилон и минимальное количество точек для DBSCAN
+    performDBSCAN(eps, minPts); // Используйте значения из бегунков
     clearCanvas(); // Обновление канваса после всех кластеризаций
-    clusteringCompleted = true; // Установка флага завершения кластеризации
+    clusteringCompleted = true; 
 }
 
 
