@@ -27,7 +27,7 @@ function drawCircle(x, y, radius) {
 
 function drawCircleLines(x, y, radius) {
     ctx.strokeStyle = 'white';  // Задание белого цвета для линий
-    const startAngle = -Math.PI / 2; 
+    const startAngle = 0; 
     for (let i = 0; i < 3; i++) {
         ctx.beginPath();
         ctx.moveTo(x, y);
@@ -47,8 +47,12 @@ function drawCircleSector(point, color, startAngle, endAngle) {
     ctx.stroke();
 }
 
+document.getElementById('numClusters').oninput = function() {
+    document.getElementById('clusterValue').textContent = this.value;
+}
+
 function startClustering() {
-    const k = parseInt(document.getElementById('numClusters').value);
+    const k = parseInt(document.getElementById('numClusters').value); // Получаем значение из бегунка
     if (!k || isNaN(k) || k <= 0) {
         alert('Пожалуйста, введите действительное количество кластеров.');
         return;

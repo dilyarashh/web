@@ -9,7 +9,10 @@
 <body>
     <button class="back-button" onclick="location.href='../algorithms/index.html' ">Back</button>
     <h1>Clustering</h1>
-    <input type="number" id="numClusters" class="inputN" placeholder="Введите количество кластеров">
+    
+    <span class="slider-label">NUMBER OF CLUSTERS FOR K-MEANS: <span id="clusterValue">2</span></span>
+    <input type="range" id="numClusters" class="inputN" min="2" max="12" value="2" step="1">
+    
     <div class="button-container">
         <button onclick="startClustering()">CLUSTER</button>
         <button id="clear">CLEAR</button>
