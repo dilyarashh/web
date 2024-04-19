@@ -98,15 +98,15 @@ function highlitePath(bestPath) {
     }
 }
 
-let size = 750;
-let numberOfGenerations = 200000;
-let alpha = 1;
-let beta = 1;
+let size = 300;
+let numberOfGenerations = 5000;
+let alpha = 1.6;
+let beta = 1.6;
 let pheromones;
 let distance;
 let desires = [];
-let Q = 200;
-let evaporation = 0.64;
+let Q = 500;
+let evaporation = 0.9;
 
 function distanceBetweenTwoPoints(first, second){
     return Math.sqrt(Math.pow(first[0] - second[0], 2) + Math.pow(first[1] - second[1], 2));
@@ -151,7 +151,7 @@ function initializePheromonesAndDistances() {
         pheromones[i] = new Array(vertexesLength);
         distance[i] = new Array(vertexesLength);
     }
-    for (let i = 0; i < points.length - 1; ++i){
+    for (let i = 0; i < points.length; ++i){
         for (let j = i + 1; j < points.length; ++j){
             distance[i][j] = Q / distanceBetweenTwoPoints(points[i].slice(), points[j].slice());
             pheromones[i][j] = 0.2;
@@ -238,27 +238,30 @@ function selectNextVertex(p) {
 }
 
 async function updatePheromones(ways) {
-    let vertexesLength = points.length;
-    for (let i = 0; i < vertexesLength - 1; ++i){
-        for (let j = i + 1; j < vertexesLength; ++j){
-            pheromones[i][j] *= evaporation;
+    for (let i = 0; i < pheromones.length; i++) {
+        for (let j = i + 1; j < pheromones[i].length; j++) {
+            pheromones[i][j] *= evaporation; 
+            pheromones[j][i] = pheromones[i][j]; 
         }
     }
-    for (let i = 0; i < ways.length; ++i){
-        let idx_path = ways[i][1].slice();
-        let lenOfPath = ways[i][2]
-        for (let j = 0; j < vertexesLength - 1; ++j){
-            let min = Math.min(idx_path[j], idx_path[j + 1]);
-            let max = Math.max(idx_path[j], idx_path[j + 1]);
-            pheromones[min][max] += Q / lenOfPath;
+    for (let way of ways) {
+        let path = way[1];
+        for (let i = 0; i < path.length - 1; i++) {
+            let a = Math.min(path[i], path[i + 1]);
+            let b = Math.max(path[i], path[i + 1]);
+            pheromones[a][b] += Q / way[2]; 
+            pheromones[b][a] = pheromones[a][b]; 
         }
     }
 }
 
 async function updateBestAnt(ways, bestAnt) {
-    let newBestAnt = ways[0].slice();
-    if (newBestAnt[2] < bestAnt[2]){
-        return newBestAnt;
+    let newBestAnt = bestAnt.slice();
+    let bestWay = ways[0];
+    if (bestWay[2] < newBestAnt[2]) {
+        newBestAnt[0] = bestWay[0].slice();
+        newBestAnt[1] = bestWay[1].slice();
+        newBestAnt[2] = bestWay[2];
     }
-    return bestAnt;
+    return newBestAnt;
 }
