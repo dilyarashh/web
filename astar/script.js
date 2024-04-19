@@ -216,7 +216,6 @@ async function aStar(maze, startId, endId) {
   while (openSet.length > 0) {
       let current = openSet.reduce((a, b) => fScore[a] < fScore[b] ? a : b);
 
-    
       drawCell(current, 'orange'); 
       await sleep(0.5); 
 
@@ -274,7 +273,7 @@ document.querySelector('.reset').onclick = function() {
 
   // Сбрасываем ползунок на начальное значение
   var slider = document.getElementById('sizeSlider');
-  slider.value = 5; // начальное значение, которое вы установили в HTML
+  slider.value = 5; 
   document.getElementById('sliderValue').textContent = '5';
 
   window.maze = Array(window.N).fill().map(() => Array(window.N).fill(true));
