@@ -181,7 +181,6 @@ async function performAntIterations(bestAnt) {
 }
 
 async function constructAntPaths() {
-    let vertexesLength = points.length;
     let ways = [];
     for (let ant = 0; ant < points.length; ++ant){
         let path = [];

@@ -139,9 +139,9 @@ function highlitePath(bestPath) {
     } 
 }
 
-let lengthOfChromosome; 
-let numberOfGenerations = 300000;
-let chanceOfMutation = 100;
+let lengthOfChromosome; //Для хранения длины хромосомы
+let numberOfGenerations = 300000; //Число генераций
+let chanceOfMutation = 100; //Вероятность мутации
 
 const randomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
@@ -153,7 +153,7 @@ const twoRandomNumbers = (min, max) => {
     return [a, b];
 };
 
-function addToPopulation(population, chromosome) {
+function addToPopulation(population, chromosome) { //Добавляем хромосому в популяцию в отсортированном порядке
     if (!population.length) {
         population.push(chromosome.slice());
     } else {
@@ -161,7 +161,8 @@ function addToPopulation(population, chromosome) {
     }
 }
 
-function insertIntoSortedPopulation(population, chromosome) {
+function insertIntoSortedPopulation(population, chromosome) { //Вставляем хромосому в отсортированную популяцию, учитывая расстояние
+
     let added = false;
     for (let i = 0; i < population.length; ++i) {
         if (chromosome[chromosome.length - 1] < population[i][population[i].length - 1]) {
@@ -175,7 +176,7 @@ function insertIntoSortedPopulation(population, chromosome) {
     }
 }
 
-function distance(chromosome){
+function distance(chromosome){ //Общее расстояние для маршрута, заданного хромосомой
     let ans = 0;
     for (let i = 0; i < chromosome.length - 1; ++i){
         ans += Math.sqrt(Math.pow(chromosome[i][0] - chromosome[i + 1][0], 2) + Math.pow(chromosome[i][1] - chromosome[i + 1][1], 2));
@@ -184,7 +185,7 @@ function distance(chromosome){
     return ans;
 }
 
-function cross(firstParent, secondParent) {
+function cross(firstParent, secondParent) { //Скрещивание двух родительских хромосом и возвращение потомка
     let child = [];
     let index1 = randomNumber(0, firstParent.length);
     let index2 = randomNumber(index1 + 1, firstParent.length);
@@ -199,11 +200,11 @@ function cross(firstParent, secondParent) {
     return child;
 }
 
-function extractSegment(parent, startIndex, endIndex) {
+function extractSegment(parent, startIndex, endIndex) { //Извлекает сегмент из родительской хромосомы
     return parent.slice(startIndex, endIndex + 1);
 }
 
-function addNonDuplicates(child, secondParent) {
+function addNonDuplicates(child, secondParent) { //Добавляет элементы из второй родительской хромосомы в потомка, избегая дубликатов
     for (let num of secondParent) {
         if (!child.includes(num)) {
             child.push(num);
@@ -211,17 +212,17 @@ function addNonDuplicates(child, secondParent) {
     }
 }
 
-function shouldMutate(chanceOfMutation) {
+function shouldMutate(chanceOfMutation) { //Определяет, следует ли проводить мутацию в потомке
     return Math.random() * 100 < chanceOfMutation;
 }
 
-function mutateChild(child) {
+function mutateChild(child) { //Мутирует потомка, меняя два случайных гена местами
     let rand = twoRandomNumbers(1, lengthOfChromosome);
     let i = rand[0], j = rand[1];
     [child[i], child[j]] = [child[j], child[i]];
 }
 
-function crossingParents(firstParent, secondParent){
+function crossingParents(firstParent, secondParent){ //Скрещивание двух родителей и возвращение двух потомков
     let firstChild = cross(firstParent, secondParent);
     let secondChild = cross(firstParent, secondParent);
 
@@ -230,7 +231,7 @@ function crossingParents(firstParent, secondParent){
     return [firstChild, secondChild];
 }
 
-function firstRunning(firstGeneration) {
+function firstRunning(firstGeneration) { //Генерирует первое поколение хромосом с случайными мутациями
     let res = [];
     let buffer = firstGeneration.slice();
     buffer.push(distance(buffer));
@@ -251,7 +252,7 @@ function firstRunning(firstGeneration) {
     return res;
 }
 
-function reproducePopulation(population) {
+function reproducePopulation(population) { //Скрещивание и мутация для текущей популяции, увеличивая ее размер
     for (let j = 0; j < points.length * points.length; ++j) {
         let index1 = randomNumber(0, population.length);
         let index2 = randomNumber(0, population.length);
@@ -267,7 +268,7 @@ function reproducePopulation(population) {
     return population;
 }
 
-async function geneticAlgorithm() {
+async function geneticAlgorithm() { //Итеративно проводим скрещивание и мутацию популяции на протяжении заданного числа поколений
     if (points.length < 3) {
         alert("Please enter more than two points.");
     } else {
