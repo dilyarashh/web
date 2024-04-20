@@ -6,6 +6,11 @@ body {
   background-color: black;
 }
 
+h1 {
+  font-family: monospace;
+  color: white;
+}
+
 .content {
   display: flex;
   flex-direction: column;
