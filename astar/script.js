@@ -75,7 +75,7 @@ document.getElementById('sizeSlider').oninput = function() {
 function initAndCreateMaze() {
 
   if (start !== null && end !== null) {
-    alert("The starting and ending points are already set. Reset them first.");
+    alert("ERROR.");
     return; // Прерываем выполнение функции
   }
 
